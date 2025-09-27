@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Iterable
 import random
 
 
@@ -52,6 +53,12 @@ class Deck():
     def shuffle(self) -> None:
         return random.shuffle(self.deck)
     
+    def get(self):
+        return self.deck
+    
+    def deal(self):
+        return self.deck.pop()[0]
+    
     def __repr__(self) -> str:
         return ", ".join([(card[1].value + card[0].value) for card in self.deck])
     
@@ -60,14 +67,40 @@ class Hand():
     def __init__(self) -> None:
         self.hand = []
 
+    def add(self, card):
+        self.hand.append(card)
+
     def current_hand_value(self):
         return sum(self.hand)
     
 
 class GameEngine():
-    def __init__(self) -> None:
+    def __init__(self, deck) -> None:
+        self.deck = deck
+        self.player = Hand()
+        self.dealer = Hand()
+
+    def start(self):
+        self.player.add(self.deck.deal())
+        self.player.add(self.deck.deal())
+        self.dealer.add(self.deck.deal())
+        self.dealer.add(self.deck.deal())
+
+    def hit_player(self):
+        self.player.add(self.deck.deal())
+    
+    def stand(self):
         pass
 
-deck = Deck()
-#deck.shuffle()
-print(deck)
+    def dealer_play(self):
+        while self.dealer.current_hand_value() < 17:
+            self.dealer.add(self.deck.deal())
+
+    def outcome(self):
+        if self.dealer.current_hand_value() > 21:
+            return f"Player wins"
+        if self.player.current_hand_value() > 21:
+            return f"Dealer wins"
+        
+
+
