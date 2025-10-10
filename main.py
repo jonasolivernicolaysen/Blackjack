@@ -44,10 +44,31 @@ class Card():
         return f"{self.rank}{self.suit}"
 
 
+class Hand():
+    def __init__(self) -> None:
+        self.hand = []
+
+    def add(self, card: Card) -> None:
+        self.hand.append(card)
+
+    def current_hand_value(self) -> int:
+        value_map = {
+            "T": 10, "J": 10, "Q": 10, "K": 10, "A": 11
+        }
+        total = 0
+        for card in self.hand:
+            r = card.rank.value
+            total += int(r) if r.isdigit() else value_map[r]
+        return total
+    
+    def __repr__(self):
+        return ", ".join([f"{card.rank.value}{card.suit.value}" for card in self.hand])
+    
+
 class Deck():
     def __init__(self) -> None:
         self.deck = [
-            (suit, rank) for suit in Suit for rank in Rank
+            Card(suit, rank) for suit in Suit for rank in Rank
         ]
         
     def shuffle(self) -> None:
@@ -57,22 +78,12 @@ class Deck():
         return self.deck
     
     def deal(self):
-        return self.deck.pop()[0]
+        return self.deck.pop()
     
     def __repr__(self) -> str:
-        return ", ".join([(card[1].value + card[0].value) for card in self.deck])
-    
+        return ", ".join([f"{card.rank.value}{card.suit.value}" for card in self.deck])
 
-class Hand():
-    def __init__(self) -> None:
-        self.hand = []
 
-    def add(self, card):
-        self.hand.append(card)
-
-    def current_hand_value(self):
-        return sum(self.hand)
-    
 
 class GameEngine():
     def __init__(self, deck) -> None:
@@ -90,17 +101,18 @@ class GameEngine():
         self.player.add(self.deck.deal())
     
     def stand(self):
-        pass
+        return self.player.current_hand_value()
 
     def dealer_play(self):
         while self.dealer.current_hand_value() < 17:
             self.dealer.add(self.deck.deal())
 
     def outcome(self):
-        if self.dealer.current_hand_value() > 21:
-            return f"Player wins"
-        if self.player.current_hand_value() > 21:
+        if (self.player.current_hand_value() > 21) \
+        or self.player.current_hand_value() < self.dealer.current_hand_value() and self.dealer.current_hand_value() <= 21:
             return f"Dealer wins"
         
-
-
+        if (self.dealer.current_hand_value() > 21) \
+        or self.player.current_hand_value() > self.dealer.current_hand_value() and self.player.current_hand_value() <= 21:
+            return f"Player wins"
+        return False
