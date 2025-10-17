@@ -2,22 +2,26 @@ from main import GameEngine, Deck
 
 deck = Deck()
 deck.shuffle()
-
 game = GameEngine(deck)
 game.start()
 
+
 while True:
-    print(f"your cards: {game.player}, dealers cards: {game.dealer}")
-    player_input = input(f"do you wanna hit or stand? ")
+    print(f"your hand: {game.player}, dealers cards: {game.dealer}")
+    player_input = input(f"[H]it or [S]tand? ")
 
-    
-    if player_input == "hit":
+    if player_input.lower().startswith("h"):
         game.player.add(game.deck.deal())
-        print(game.outcome())
+        
+    if player_input.lower().startswith("s"):
         game.dealer_play()
-
-    if player_input == "stand":
-        game.dealer_play()
-        print(game.outcome())
+        print(f"your hand: {game.player}, dealers cards: {game.dealer}")
+        result = game.outcome()
+        print(result)
         break
+
+        
+
     
+    
+       
