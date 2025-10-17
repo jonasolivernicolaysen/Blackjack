@@ -32,13 +32,13 @@ class Card():
         self.rank = rank
     
     @property
-    def value(self) -> int:
+    def value(self) -> tuple:
         if self.rank in (Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING):
-            return 10
+            return (10,)
         elif self.rank == Rank.ACE:
-            return 11
+            return (1, 11)
         else:
-            return int(self.rank.value)
+            return (int(self.rank.value),)
 
     def __repr__(self) -> str:
         return f"{self.rank}{self.suit}"
@@ -52,9 +52,12 @@ class Hand():
         self.hand.append(card)
 
     def current_hand_value(self) -> int:
-        total = sum(card.value for card in self.hand)
+        aces = sum(1 for card in self.hand if card.rank == Rank.ACE)
+        total = sum(card.value[0] for card in self.hand if card.rank != Rank.ACE) + aces
+        while aces and total + 10 <= 21:
+            total += 10; aces -= 1
         return total
-    
+
     def __repr__(self):
         return ", ".join([f"{card.rank.value}{card.suit.value}" for card in self.hand])
     
@@ -92,7 +95,8 @@ class GameEngine():
         self.player.add(self.deck.deal())
     
     def dealer_play(self):
-        while self.dealer.current_hand_value() < 17:
+        while self.dealer.current_hand_value() < 17 and \
+            self.dealer.current_hand_value() < self.player.current_hand_value():
             self.dealer.add(self.deck.deal())
             
     def outcome(self):
