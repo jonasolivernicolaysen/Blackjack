@@ -67,6 +67,10 @@ class Deck():
         self.deck = [
             Card(suit, rank) for suit in Suit for rank in Rank
         ]
+
+    @property
+    def length(self):
+        return len(self.deck)
         
     def shuffle(self) -> None:
         return random.shuffle(self.deck)
@@ -86,10 +90,23 @@ class GameEngine():
         self.deck = deck
         self.player = Hand()
         self.dealer = Hand()
+        self.balance = 100
 
-    def start(self):
+    def _deal_initial(self):
+        self.player.add(self.deck.deal())
         self.player.add(self.deck.deal())
         self.dealer.add(self.deck.deal())
+
+    def start(self):
+        self._deal_initial()
+
+    def new_round(self):
+        if self.deck.length < 15:
+            self.deck = Deck()
+            self.deck.shuffle()
+        self.player = Hand()
+        self.dealer = Hand()
+        self._deal_initial()
 
     def hit_player(self):
         self.player.add(self.deck.deal())
